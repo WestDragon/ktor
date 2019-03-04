@@ -2,6 +2,7 @@ package io.ktor.client.tests.utils
 
 import ch.qos.logback.classic.*
 import io.ktor.application.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.request.*
 import io.ktor.response.*
@@ -35,6 +36,33 @@ internal fun startServer(): ApplicationEngine {
                     call.respondText("[{id: 4242, path: 'cat.jpg'}]", contentType = ContentType.Application.Json)
                 }
             }
+            route("/compression") {
+                route("/deflate") {
+                    install(Compression) { deflate() }
+                    setCompressionEndpoints()
+                }
+                route("/gzip") {
+                    install(Compression) { gzip() }
+                    setCompressionEndpoints()
+                }
+                route("/identity") {
+                    install(Compression) { identity() }
+                }
+            }
         }
     }.start()
+}
+
+private fun Route.setCompressionEndpoints() {
+    get {
+        call.respondText("Compressed response!")
+    }
+    post {
+        val content = call.receiveText()
+        if (content == "Compressed string") {
+            call.respond(HttpStatusCode.OK)
+        } else {
+            call.respond(HttpStatusCode.BadRequest)
+        }
+    }
 }
