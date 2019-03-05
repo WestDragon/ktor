@@ -57,12 +57,4 @@ private fun Route.setCompressionEndpoints() {
     get {
         call.respondText("Compressed response!")
     }
-    post {
-        val content = call.receiveText()
-        if (content == "Compressed string") {
-            call.respond(HttpStatusCode.OK)
-        } else {
-            call.respond(HttpStatusCode.BadRequest)
-        }
-    }
 }
