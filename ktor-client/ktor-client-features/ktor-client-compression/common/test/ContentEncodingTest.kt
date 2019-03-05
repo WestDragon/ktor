@@ -5,23 +5,22 @@ import io.ktor.client.tests.utils.*
 import io.ktor.http.*
 import kotlin.test.*
 
-class HttpCompressionTest {
+private const val TEST_URL = "$TEST_SERVER/compression"
 
+class ContentEncodingTest {
     @Test
-    fun testIdentity() = clientsTest {
-        config {
-            install(HttpCompression)
-        }
-
-        test { client ->
-            val response = client.get<String>("$TEST_SERVER/compression/identity") {
-                accept(ContentType.Text.Plain)
+    fun testIdentity() {
+        clientsTest {
+            config {
+                ContentEncoding()
             }
 
-            assertEquals("Compressed response!", response)
+            test { client ->
+                val response = client.get<String>("$TEST_URL/identity") {
+                    accept(ContentType.Text.Plain)
+                }
 
-            client.post<Unit>("$TEST_SERVER/compression/identity") {
-                body = "Compressed Request!"
+                assertEquals("Compressed response!", response)
             }
         }
     }
@@ -29,38 +28,30 @@ class HttpCompressionTest {
     @Test
     fun testDeflate() = clientsTest {
         config {
-            install(HttpCompression)
+            ContentEncoding()
         }
 
         test { client ->
-            val response = client.get<String>("$TEST_SERVER/compression/deflate") {
+            val response = client.get<String>("$TEST_URL/deflate") {
                 accept(ContentType.Text.Plain)
             }
 
             assertEquals("Compressed response!", response)
-
-            client.post<Unit>("$TEST_SERVER/compression/deflate") {
-                body = "Compressed Request!"
-            }
         }
     }
 
     @Test
     fun testGZip() = clientsTest {
         config {
-            install(HttpCompression)
+            ContentEncoding()
         }
 
         test { client ->
-            val response = client.get<String>("$TEST_SERVER/compression/gzip") {
+            val response = client.get<String>("$TEST_URL/gzip") {
                 accept(ContentType.Text.Plain)
             }
 
             assertEquals("Compressed response!", response)
-
-            client.post<Unit>("$TEST_SERVER/compression/gzip") {
-                body = "Compressed Request!"
-            }
         }
     }
 }
