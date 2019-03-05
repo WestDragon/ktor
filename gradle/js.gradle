@@ -36,7 +36,7 @@ compileTestKotlinJs {
     kotlinOptions.sourceMapEmbedSources = 'always'
 }
 
-task assembleWeb(type: Sync, group: 'build', dependsOn: compileTestKotlinJs) {
+task assembleWeb(type: Copy, group: 'build', dependsOn: compileTestKotlinJs) {
     from compileKotlinJs.destinationDir
     into "$project.buildDir/node_modules"
 
@@ -93,6 +93,7 @@ prepareMocha.doLast {
         <script src="$libraryPath/ktor-client-logging.js"></script>
         <script src="$libraryPath/ktor-client-tests.js"></script>
         <script src="$libraryPath/ktor-client-websocket.js"></script>
+        <script src="$libraryPath/ktor-client-compression.js"></script>
         <script src="$compileTestKotlinJs.outputFile"></script>
         <script>mocha.run();</script>
         </body>

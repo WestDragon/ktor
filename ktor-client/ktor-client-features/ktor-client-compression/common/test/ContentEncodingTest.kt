@@ -16,10 +16,7 @@ class ContentEncodingTest {
             }
 
             test { client ->
-                val response = client.get<String>("$TEST_URL/identity") {
-                    accept(ContentType.Text.Plain)
-                }
-
+                val response = client.get<String>("$TEST_URL/identity")
                 assertEquals("Compressed response!", response)
             }
         }
@@ -32,10 +29,7 @@ class ContentEncodingTest {
         }
 
         test { client ->
-            val response = client.get<String>("$TEST_URL/deflate") {
-                accept(ContentType.Text.Plain)
-            }
-
+            val response = client.get<String>("$TEST_URL/deflate")
             assertEquals("Compressed response!", response)
         }
     }
@@ -47,10 +41,7 @@ class ContentEncodingTest {
         }
 
         test { client ->
-            val response = client.get<String>("$TEST_URL/gzip") {
-                accept(ContentType.Text.Plain)
-            }
-
+            val response = client.get<String>("$TEST_URL/gzip")
             assertEquals("Compressed response!", response)
         }
     }
