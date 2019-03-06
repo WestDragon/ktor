@@ -1,34 +1,27 @@
 package io.ktor.client.features.compression
 
+import io.ktor.util.*
+import kotlinx.coroutines.*
 import kotlinx.coroutines.io.*
 
-interface ContentEncoder {
+interface ContentEncoder : Encoder {
     val name: String
-
-    suspend fun decode(content: ByteReadChannel): ByteReadChannel
 }
 
-internal object GZipEncoder : ContentEncoder {
+internal object GZipEncoder : ContentEncoder, Encoder by GZip {
     override val name: String = "gzip"
-
-    override suspend fun decode(content: ByteReadChannel): ByteReadChannel {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 }
 
-internal object DeflateEncoder : ContentEncoder {
-    override suspend fun decode(content: ByteReadChannel): ByteReadChannel {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override val name: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-
+internal object DeflateEncoder : ContentEncoder, Encoder by Deflate {
+    override val name: String = "deflate"
 }
 
 internal object IdentityEncoder : ContentEncoder {
+    override fun CoroutineScope.encode(source: ByteReadChannel): ByteReadChannel = source
+
+    override fun CoroutineScope.decode(source: ByteReadChannel): ByteReadChannel = source
+
     override val name: String = "identity"
 
-    override suspend fun decode(content: ByteReadChannel): ByteReadChannel = content
 }
 

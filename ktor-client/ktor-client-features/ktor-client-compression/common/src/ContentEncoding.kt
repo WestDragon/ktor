@@ -6,6 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.response.*
 import io.ktor.http.*
 import io.ktor.util.*
+import kotlinx.coroutines.*
 import kotlinx.coroutines.io.*
 
 class ContentEncoding(
@@ -31,10 +32,13 @@ class ContentEncoding(
         headers[HttpHeaders.AcceptEncoding] = requestHeader
     }
 
-    private suspend fun decode(headers: Headers, content: ByteReadChannel): ByteReadChannel {
+    private fun CoroutineScope.decode(headers: Headers, content: ByteReadChannel): ByteReadChannel {
         val encoding = headers[HttpHeaders.ContentEncoding] ?: return content
-        val encoder = encoders[encoding] ?: throw UnsupportedContentEncodingException(encoding)
-        return encoder.decode(content)
+        val encoder: Encoder = encoders[encoding] ?: throw UnsupportedContentEncodingException(encoding)
+
+        with(encoder) {
+            return decode(content)
+        }
     }
 
     class Config {
@@ -71,7 +75,6 @@ class ContentEncoding(
         override fun prepare(block: Config.() -> Unit): ContentEncoding {
             val config = Config().apply(block)
 
-
             return with(config) {
                 ContentEncoding(encoders, qualityValues)
             }
@@ -85,13 +88,21 @@ class ContentEncoding(
             scope.responsePipeline.intercept(HttpResponsePipeline.Receive) { (type, content) ->
                 if (content !is ByteReadChannel) return@intercept
 
-                proceedWith(HttpResponseContainer(type, feature.decode(context.response.headers, content)))
+                with(feature) {
+                    proceedWith(HttpResponseContainer(type, context.decode(context.response.headers, content)))
+                }
             }
         }
     }
 }
 
-fun HttpClientConfig<*>.ContentEncoding(block: ContentEncoding.Config.() -> Unit = {}) {
+fun HttpClientConfig<*>.ContentEncoding(
+    block: ContentEncoding.Config.() -> Unit = {
+        gzip()
+        deflate()
+        identity()
+    }
+) {
     install(ContentEncoding, block)
 }
 

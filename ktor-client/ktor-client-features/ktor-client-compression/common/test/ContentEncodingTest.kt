@@ -2,7 +2,6 @@ package io.ktor.client.features.compression
 
 import io.ktor.client.request.*
 import io.ktor.client.tests.utils.*
-import io.ktor.http.*
 import kotlin.test.*
 
 private const val TEST_URL = "$TEST_SERVER/compression"
@@ -12,7 +11,9 @@ class ContentEncodingTest {
     fun testIdentity() {
         clientsTest {
             config {
-                ContentEncoding()
+                ContentEncoding {
+                    identity()
+                }
             }
 
             test { client ->
@@ -25,7 +26,9 @@ class ContentEncodingTest {
     @Test
     fun testDeflate() = clientsTest {
         config {
-            ContentEncoding()
+            ContentEncoding {
+                deflate()
+            }
         }
 
         test { client ->
@@ -37,7 +40,9 @@ class ContentEncodingTest {
     @Test
     fun testGZip() = clientsTest {
         config {
-            ContentEncoding()
+            ContentEncoding {
+                gzip()
+            }
         }
 
         test { client ->

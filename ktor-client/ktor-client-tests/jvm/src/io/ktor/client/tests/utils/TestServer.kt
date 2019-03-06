@@ -47,6 +47,7 @@ internal fun startServer(): ApplicationEngine {
                 }
                 route("/identity") {
                     install(Compression) { identity() }
+                    setCompressionEndpoints()
                 }
             }
         }
